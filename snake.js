@@ -20,8 +20,8 @@ var snake = {
 			snake._el_target.style.background = "#c333c3";
 			snake._el_container.appendChild(snake._el_target);
 		}
-		snake._el_target.style.left = snake.state.target[0];
-		snake._el_target.style.top = snake.state.target[1];
+		snake._el_target.style.left = snake.state.target[0]+"px";
+		snake._el_target.style.top = snake.state.target[1]+"px";
 
 		while (snake._el_segments.length > snake.state.segments.length) {
 			var el = snake._el_segments.shift();
@@ -34,14 +34,14 @@ var snake = {
 			el_seg.style.height = "5px";
 			el_seg.style.width = "5px";
 			el_seg.style.background = "#33c33c";
-			el_seg.style.left = snake.state.segments[i][0];
-			el_seg.style.top = snake.state.segments[i][1];
+			el_seg.style.left = snake.state.segments[i][0]+"px";
+			el_seg.style.top = snake.state.segments[i][1]+"px";
 			snake._el_segments.push(el_seg);
 			snake._el_container.appendChild(el_seg);
 		}
 		for (var j = 0; j < snake.state.segments.length; j++) {
-			snake._el_segments[j].style.left = snake.state.segments[j][0];
-			snake._el_segments[j].style.top = snake.state.segments[j][1];
+			snake._el_segments[j].style.left = snake.state.segments[j][0]+"px";
+			snake._el_segments[j].style.top = snake.state.segments[j][1]+"px";
 		}
 	},
 
