@@ -4,6 +4,14 @@ var snake = {
 	_el_container: null,
 	_el_target: null,
 	_el_segments: [],
+	size: 10, // Size in pixel of Snake & Block
+	speed: 500, // Speed of Snake in miliseconds; higher number = slower
+	speedup: 1.1, // Speed increase after munching a Block; higher number = more speed gain
+	snake_color: "#33c33c", // Snake color
+	target_color: "#c333c3", // Blocks color
+	body_bg: "#eeeeee", // Main background color
+	fail_bg: "#990000", // Background color on collision (game fail)
+	
 
 	init_draw: function () {
 		snake._el_container = document.createElement('div');
@@ -15,9 +23,9 @@ var snake = {
 		if (snake._el_target === null) {
 			snake._el_target = document.createElement('div');
 			snake._el_target.style.position = "absolute";
-			snake._el_target.style.height = "5px";
-			snake._el_target.style.width = "5px";
-			snake._el_target.style.background = "#c333c3";
+			snake._el_target.style.height = snake.size+"px";
+			snake._el_target.style.width = snake.size+"px";
+			snake._el_target.style.background = snake.target_color;
 			snake._el_container.appendChild(snake._el_target);
 		}
 		snake._el_target.style.left = snake.state.target[0]+"px";
@@ -31,9 +39,9 @@ var snake = {
 			var i = snake._el_segments.length;
 			var el_seg = document.createElement('div');
 			el_seg.style.position = "absolute";
-			el_seg.style.height = "5px";
-			el_seg.style.width = "5px";
-			el_seg.style.background = "#33c33c";
+			el_seg.style.height = snake.size+"px";
+			el_seg.style.width = snake.size+"px";
+			el_seg.style.background = snake.snake_color;
 			el_seg.style.left = snake.state.segments[i][0]+"px";
 			el_seg.style.top = snake.state.segments[i][1]+"px";
 			snake._el_segments.push(el_seg);
@@ -55,22 +63,22 @@ var snake = {
 			? snake.state.segments[snake.state.segments.length - 1].slice(0)
 			: tail
 		);
-		newseg[0] = (newseg[0] + snake.state.direction[0] * 5) % window.innerWidth;
+		newseg[0] = (newseg[0] + snake.state.direction[0] * snake.size) % window.innerWidth;
 		if (newseg[0] < 0) {
 			newseg[0] += window.innerWidth;
 		}
-		newseg[0] -= newseg[0] % 5;
-		newseg[1] = (newseg[1] + snake.state.direction[1] * 5) % window.innerHeight;
+		newseg[0] -= newseg[0] % snake.size;
+		newseg[1] = (newseg[1] + snake.state.direction[1] * snake.size) % window.innerHeight;
 		if (newseg[1] < 0) {
 			newseg[1] += window.innerHeight;
 		}
-		newseg[1] -= newseg[1] % 5;
+		newseg[1] -= newseg[1] % snake.size;
 		snake.state.segments.push(newseg);
 
 		if (newseg[0] === snake.state.target[0] && newseg[1] === snake.state.target[1]) {
 			snake.add_segment();
 			snake.state.target = snake.random_position();
-			snake.state.speed *= 1.2;
+			snake.state.speed *= snake.speedup;
 		}
 
 		if (snake.has_collision()) {
@@ -79,15 +87,15 @@ var snake = {
 		}
 		snake.draw_state();
 		snake.save_state();
-		window.setTimeout(snake.iterate, 1000 / snake.state.speed);
+		window.setTimeout(snake.iterate, snake.speed / snake.state.speed);
 	},
 
 	_bg_red: function () {
-		document.body.style.background = "#990000";
+		document.body.style.background = snake.fail_bg;
 	},
 
 	_bg_white: function () {
-		document.body.style.background = "#FFFFFF";
+		document.body.style.background = snake.body_bg;
 	},
 
 	lose: function () {
@@ -112,16 +120,16 @@ var snake = {
 
 	add_segment: function () {
 		var newseg = snake.state.segments[snake.state.segments.length - 1].slice(0);
-		newseg[0] = (newseg[0] + snake.state.direction[0] * 5) % window.innerWidth;
+		newseg[0] = (newseg[0] + snake.state.direction[0] * snake.size) % window.innerWidth;
 		if (newseg[0] < 0) {
 			newseg[0] += window.innerWidth;
 		}
-		newseg[0] -= newseg[0] % 5;
-		newseg[1] = (newseg[1] + snake.state.direction[1] * 5) % window.innerHeight;
+		newseg[0] -= newseg[0] % snake.size;
+		newseg[1] = (newseg[1] + snake.state.direction[1] * snake.size) % window.innerHeight;
 		if (newseg[1] < 0) {
 			newseg[1] += window.innerHeight;
 		}
-		newseg[1] -= newseg[1] % 5;
+		newseg[1] -= newseg[1] % snake.size;
 		snake.state.segments.push(newseg);
 	},
 
@@ -130,13 +138,13 @@ var snake = {
 			w = window.innerWidth - 20;
 		var basex = Math.round(Math.random() * w),
 			basey = Math.round(Math.random() * h);
-		return [10 + basex - (basex % 5), 230 + basey - (basey % 5)];
+		return [10 + basex - (basex % snake.size), 230 + basey - (basey % snake.size)];
 	},
 
 	start_state: function () {
 		return {
 			target: snake.random_position(),
-			segments: [[0, Math.min(310, (window.innerHeight - (window.innerHeight % 5)) - 20)]],
+			segments: [[0, Math.min(310, (window.innerHeight - (window.innerHeight % snake.size)) - 20)]],
 			speed: 5,
 			direction: [1, 0]
 		};
@@ -175,7 +183,10 @@ var snake = {
 		} else if (keyCode === 39) {
 			// right
 			snake.state.direction = [1, 0];
-		}
+		} else if (keyCode === 27) {
+            // escape
+            snake.clear_state(); // Reset the game
+        }
 	},
 
 	_touch_start: null,
@@ -187,7 +198,7 @@ var snake = {
 
 	touch_end: function (event) {
 		var touches = event.changedTouches;
-		end_pos = [touches[0].pageX, touches[0].pageY];
+		var end_pos = [touches[0].pageX, touches[0].pageY];
 		var dX = end_pos[0] - snake._touch_start[0],
 			dY = end_pos[1] - snake._touch_start[1],
 			c = Math.sqrt(dX*dX + dY*dY),
